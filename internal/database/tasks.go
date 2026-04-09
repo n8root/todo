@@ -21,9 +21,9 @@ func (s *TasksStore) GetAll() ([]models.Task, error) {
 	var tasks []models.Task
 
 	query := `
-		SELECT (id, title, description, completed, idcreated_at, updated_at) 
+		SELECT id, title, description, completed, created_at, updated_at 
 			FROM tasks
-			ORDER BY created_at DESC
+				ORDER BY created_at DESC
 	`
 
 	if err := s.db.Select(&tasks, query); err != nil {
@@ -37,7 +37,7 @@ func (s *TasksStore) GetById(id int) (*models.Task, error) {
 	var task models.Task
 
 	query := `
-		SELECT (id, title, description, completed, idcreated_at, updated_at) 
+		SELECT id, title, description, completed, created_at, updated_at
 			FROM tasks
 				WHERE id = $1
 	`
@@ -99,13 +99,12 @@ func (s *TasksStore) Update(id int, form models.UpdateTaskForm) (*models.Task, e
 	query := `
 		UPDATE tasks
 			SET
-				title = $1
-				description = $2
-				completed = $3
+				title = $1,
+				description = $2,
+				completed = $3,
 				updated_at = $4
+			WHERE id=$5
 			RETURNING id, title, description, completed, created_at, updated_at
-			
-		
 	`
 
 	var updatedTask models.Task
@@ -129,10 +128,20 @@ func (s *TasksStore) Update(id int, form models.UpdateTaskForm) (*models.Task, e
 func (s *TasksStore) Delete(id int) error {
 	query := `DELETE FROM tasks WHERE id=$1`
 
-	_, err := s.db.Exec(query, id)
+	res, err := s.db.Exec(query, id)
 
 	if err != nil {
 		return err
+	}
+
+	affected, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return fmt.Errorf("task with id %d not found", id)
 	}
 
 	return nil

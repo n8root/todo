@@ -1,0 +1,32 @@
+###
+## List
+GET http://localhost:8080/tasks HTTP/1.1
+
+###
+## Detail
+GET http://localhost:8080/tasks/1 HTTP/1.1
+
+###
+## Create
+POST http://localhost:8080/tasks HTTP/1.1
+content-type: application/json
+
+{
+    "title": "test task 1",
+    "description": "test task description 1",
+    "completed": false
+}
+
+###
+## UPDATE
+PATCH http://localhost:8080/tasks/1 HTTP/1.1
+content-type: application/json
+
+{
+    "description": "completed",
+    "completed": true
+}
+
+###
+## DELETE
+DELETE  http://localhost:8080/tasks/1 HTTP/1.1
